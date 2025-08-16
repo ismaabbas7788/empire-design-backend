@@ -11,7 +11,7 @@ const pool = mysql.createPool({
   host: 'hopper.proxy.rlwy.net',     // from MYSQLHOST
   user: 'root',                      // from MYSQLUSER
   password: 'WsruyvhZDGOVoTSfuIiPkcokiySJNqnV', // from MYSQLPASSWORD
-  database: 'railway',               // from MYSQL_DATABASE
+  database: 'ardb',               // from MYSQL_DATABASE
   port: 31654,                        // from MYSQLPORT
   waitForConnections: true,
   connectionLimit: 10,
