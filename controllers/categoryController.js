@@ -42,7 +42,7 @@ case 'name_desc':
 // Fetch all categories
 const getAllCategories = async (req, res) => {
   try {
-    const [results] = await db.promise().query('SELECT * FROM categories');
+    const [results] = await db.query('SELECT * FROM categories');
     res.status(200).json(results);
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -54,7 +54,7 @@ const getAllCategories = async (req, res) => {
 const getSubcategoriesByCategoryId = async (req, res) => {
   const categoryId = req.params.id;
   try {
-    const [results] = await db.promise().query(
+    const [results] = await db.query(
       'SELECT * FROM subcategories WHERE category_id = ?',
       [categoryId]
     );
@@ -88,7 +88,7 @@ const getProductsByCategory = async (req, res) => {
   params.push(limit, offset);
 
   try {
-    const [results] = await db.promise().query(query, params);
+    const [results] = await db.query(query, params);
     res.status(200).json(results);
   } catch (err) {
     console.error(`Error fetching products for category ${categoryId}:`, err);
@@ -119,7 +119,7 @@ const getProductsBySubcategory = async (req, res) => {
   params.push(limit, offset);
 
   try {
-    const [results] = await db.promise().query(query, params);
+    const [results] = await db.query(query, params);
     res.status(200).json(results);
   } catch (err) {
     console.error("Error fetching products by subcategory:", err);
@@ -149,7 +149,7 @@ const getAllProducts = async (req, res) => {
   params.push(limit, offset);
 
   try {
-    const [results] = await db.promise().query(query, params);
+    const [results] = await db.query(query, params);
     res.status(200).json(results);
   } catch (error) {
     console.error('Error fetching all products:', error);
@@ -161,7 +161,7 @@ const getAllProducts = async (req, res) => {
 const addCategory = async (req, res) => {
   const { name } = req.body; // Remove description here
   try {
-    const [result] = await db.promise().query(
+    const [result] = await db.query(
       "INSERT INTO categories (name) VALUES (?)",
       [name]  // Pass name as value here
     );
@@ -178,7 +178,7 @@ const updateCategory = async (req, res) => {
   const { name } = req.body; // Remove description
 
   try {
-    await db.promise().query(
+    await db.query(
       'UPDATE categories SET name = ? WHERE id = ?',
       [name, id]
     );
@@ -195,7 +195,7 @@ const deleteCategory = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await db.promise().query('DELETE FROM categories WHERE id = ?', [id]);
+    await db.query('DELETE FROM categories WHERE id = ?', [id]);
     res.status(200).json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error(`Error deleting category with id ${id}:`, error);
