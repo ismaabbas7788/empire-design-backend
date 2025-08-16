@@ -7,7 +7,7 @@ const mysql = require('mysql2'); // ✅ must be mysql2
 //   database: 'ardb',
 // });
 
-const db = mysql.createPool({
+const pool = mysql.createPool({
   host: 'hopper.proxy.rlwy.net',     // from MYSQLHOST
   user: 'root',                      // from MYSQLUSER
   password: 'WsruyvhZDGOVoTSfuIiPkcokiySJNqnV', // from MYSQLPASSWORD
@@ -18,12 +18,6 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-db.connect((err) => {
-  if (err) {
-    console.error('Database connection failed:', err);
-    return;
-  }
-  console.log('Database connected!');
-});
+const db = pool.promise();
 
 module.exports = db;
