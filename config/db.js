@@ -7,7 +7,7 @@ const mysql = require('mysql2'); // ✅ must be mysql2
 //   database: 'ardb',
 // });
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: 'hopper.proxy.rlwy.net',     // from MYSQLHOST
   user: 'root',                      // from MYSQLUSER
   password: 'WsruyvhZDGOVoTSfuIiPkcokiySJNqnV', // from MYSQLPASSWORD
