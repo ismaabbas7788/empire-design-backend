@@ -1,0 +1,89 @@
+const db = require("../config/db");
+const nodemailer = require("nodemailer");
+
+// Submit contact form
+const submitContactForm = (req, res) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: "All fields are required." });
+  }
+
+  const query = "INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)";
+  db.query(query, [name, email, message], (err, result) => {
+    if (err) {
+      console.error("Error saving message:", err);
+      return res.status(500).json({ error: "Failed to submit message. Try again later." });
+    }
+
+    res.status(200).json({ message: "Message submitted successfully." });
+  });
+};
+
+// Get all contact messages
+const getAllMessages = (req, res) => {
+  db.query("SELECT * FROM contact_messages ORDER BY created_at DESC", (err, results) => {
+    if (err) {
+      console.error("Error fetching messages:", err);
+      return res.status(500).json({ error: "Error fetching messages" });
+    }
+    res.json(results);
+  });
+};
+
+// Send reply to user
+const sendReplyToUser = (req, res) => {
+  const { id } = req.params;
+  const { response } = req.body;
+
+  if (!response) {
+    return res.status(400).json({ error: "Response cannot be empty." });
+  }
+
+  db.query("SELECT * FROM contact_messages WHERE id = ?", [id], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    const { email, name } = results[0];
+
+    db.query("UPDATE contact_messages SET response = ? WHERE id = ?", [response, id], (err) => {
+      if (err) {
+        return res.status(500).json({ error: "Failed to update response in DB" });
+      }
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "ismaabbas7788@gmail.com",     // your Gmail
+          pass: "nnll vuar argl tnxj",          // Gmail App Password
+        },
+      });
+
+      const mailOptions = {
+        from: '"Empire Design" <ismaabbas7788@gmail.com>',
+        to: email,
+        subject: "Response from Empire Design Support",
+        html: `<p>Dear ${name},</p>
+               <p>${response}</p>
+               <p><b>Empire Design Team</b></p>`,
+      };
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error("Error sending email:", err);
+          return res.status(500).json({ error: "Failed to send email" });
+        }
+
+        res.status(200).json({ message: "Reply sent and emailed successfully!" });
+      });
+    });
+  });
+};
+
+// ✅ Export all functions properly
+module.exports = {
+  submitContactForm,
+  getAllMessages,
+  sendReplyToUser,
+};
