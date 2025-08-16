@@ -2,37 +2,43 @@ const db = require('../config/db');
 
 // LOGIN
 // LOGIN
-exports.login = (req, res) => {
-  const { email, password, role } = req.body;
 
-  if (!email || !password || !role) {
-    return res.status(400).json({ message: 'Email, password, and role are required' });
-  }
 
-  db.query(
-    'SELECT * FROM register WHERE email = ? AND password = ? AND role = ?',
-    [email, password, role],
-    (err, results) => {
-      if (err) return res.status(500).json({ message: 'Database error' });
+exports.login = async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
 
-      if (results.length > 0) {
-        const user = results[0];
-        return res.status(200).json({
-          message: 'Login successful',
-          user: {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role
-          }
-        });
-      }
-
-      return res.status(401).json({ message: 'Invalid email, password, or role' });
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: 'Email, password, and role are required' });
     }
-  );
+
+    // Query using async/await
+    const [results] = await db.query(
+      'SELECT * FROM register WHERE email = ? AND password = ? AND role = ?',
+      [email, password, role]
+    );
+
+    if (results.length > 0) {
+      const user = results[0];
+      return res.status(200).json({
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        },
+      });
+    }
+
+    return res.status(401).json({ message: 'Invalid email, password, or role' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Database error' });
+  }
 };
+
 
 
 // REGISTER
