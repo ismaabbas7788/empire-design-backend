@@ -68,3 +68,84 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+```
+empire-design-backend
+├─ .env
+├─ api
+│  └─ server.js
+├─ config
+│  └─ db.js
+├─ controllers
+│  ├─ analyticsController.js
+│  ├─ authController.js
+│  ├─ cartController.js
+│  ├─ categoryController.js
+│  ├─ contactController.js
+│  ├─ historyController.js
+│  ├─ orderController.js
+│  ├─ productController.js
+│  ├─ profileController.js
+│  ├─ reviewController.js
+│  ├─ searchController.js
+│  └─ userController.js
+├─ package-lock.json
+├─ package.json
+├─ README.md
+├─ routes
+│  ├─ analyticsRoutes.js
+│  ├─ authRoutes.js
+│  ├─ cartRoutes.js
+│  ├─ categoryRoutes.js
+│  ├─ contactRoutes.js
+│  ├─ historyRoutes.js
+│  ├─ orderRoutes.js
+│  ├─ productRoutes.js
+│  ├─ profileRoutes.js
+│  ├─ reviewRoutes.js
+│  ├─ searchRoutes.js
+│  ├─ subcategoriesRoutes.js
+│  └─ userRoutes.js
+├─ uploads
+│  ├─ 1746886034202-327404663.jpg
+│  ├─ 1746886802833-919157935.jpg
+│  ├─ 1746887644392-814655829.jpg
+│  ├─ 1746895793731-138033733.jpg
+│  ├─ 1746896741388.jpg
+│  ├─ 1746897514747.jpg
+│  ├─ 1746897518807.jpg
+│  ├─ 1746897527902.jpg
+│  ├─ 1746898629107.jpg
+│  ├─ 1746903608378.jpg
+│  ├─ 1746904272299.jpg
+│  ├─ 1746904531672.jpg
+│  ├─ 1747425566608.jpg
+│  ├─ 1747425677949.jpg
+│  ├─ 1747571047050.jpg
+│  ├─ 1747571083392.jpg
+│  ├─ 1747573181401.jpg
+│  ├─ 1747676279566.jpg
+│  ├─ 1747919506239.jpg
+│  ├─ 1748185401733.jpg
+│  ├─ 1748185416592.jpg
+│  ├─ 1748185480536.jpg
+│  ├─ 1748185753811.jpg
+│  ├─ 1748185782653.jpeg
+│  ├─ 1748185905032.jpeg
+│  ├─ 1748186656551.jpeg
+│  ├─ 1748192626137.JPG
+│  ├─ 1748192955165.JPG
+│  ├─ 1748193662307.JPG
+│  ├─ 1748263200774.jpeg
+│  ├─ 1748492434827.jpeg
+│  ├─ 1748498124531.jpeg
+│  ├─ 1748498134343.jpeg
+│  ├─ 1748500649483.jpg
+│  ├─ 1748500667768.jpeg
+│  ├─ 1749045976951.jpeg
+│  ├─ 1752437245242.jpeg
+│  ├─ 1754471793884.jpg
+│  └─ 1755329453838.jpg
+└─ vercel.json
+
+```

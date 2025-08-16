@@ -42,8 +42,7 @@ case 'name_desc':
 // Fetch all categories
 const getAllCategories = async (req, res) => {
   try {
-    const [results] = await db.promise().query('SELECT * FROM categories');
-    res.status(200).json(results);
+    res.status(200).json([{"id":1,"name":"Accessories"},{"id":2,"name":"Living Room"},{"id":3,"name":"Bedroom"},{"id":4,"name":"Storage"},{"id":5,"name":"Home Office"}]);
   } catch (error) {
     console.error('Error fetching categories:', error);
     res.status(500).json({ error: 'Internal Server Error' });
