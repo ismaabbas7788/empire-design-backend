@@ -127,7 +127,8 @@ const deleteProduct = async (req, res) => {
 };
 
 
-const getTopSellers = (req, res) => {
+// Get top 4 best-selling products
+const getTopSellers = async (req, res) => {
   const query = `
     SELECT 
       p.id, p.name, p.price, p.image, SUM(oi.quantity) AS total_sold
@@ -136,20 +137,21 @@ const getTopSellers = (req, res) => {
     JOIN 
       order_items oi ON p.id = oi.product_id
     GROUP BY 
-      p.id
+      p.id, p.name, p.price, p.image
     ORDER BY 
       total_sold DESC
     LIMIT 4;
   `;
 
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error("Error fetching top sellers:", err);
-      return res.status(500).json({ error: "Server error" });
-    }
-    res.json(results);
-  });
+  try {
+    const [results] = await db.query(query);
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Error fetching top sellers:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
+
 
 // GET most recent products
 const getRecentProducts = async (req, res) => {
