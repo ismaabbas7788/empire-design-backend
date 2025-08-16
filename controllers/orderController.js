@@ -1,10 +1,10 @@
-const db = require('../config/db');
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+const db = require("../config/db");
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 // Configure nodemailer
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
@@ -15,14 +15,17 @@ const transporter = nodemailer.createTransport({
 
 // Place a new order
 exports.placeOrder = async (req, res) => {
-  const { orderItems, shippingAddress, paymentMethod, totalPrice, user_id } = req.body;
+  const { orderItems, shippingAddress, paymentMethod, totalPrice, user_id } =
+    req.body;
 
   if (!orderItems || orderItems.length === 0) {
     return res.status(400).json({ message: "No order items provided." });
   }
 
   if (!shippingAddress || !paymentMethod || !totalPrice || !user_id) {
-    return res.status(400).json({ message: "Missing required order information." });
+    return res
+      .status(400)
+      .json({ message: "Missing required order information." });
   }
 
   try {
@@ -38,10 +41,10 @@ exports.placeOrder = async (req, res) => {
     const orderId = orderResult.insertId;
 
     // Set tracking number
-    await db.query(
-      "UPDATE orders SET tracking_number = ? WHERE order_id = ?",
-      [orderId, orderId]
-    );
+    await db.query("UPDATE orders SET tracking_number = ? WHERE order_id = ?", [
+      orderId,
+      orderId,
+    ]);
 
     // Insert order items
     for (const item of orderItems) {
@@ -54,24 +57,28 @@ exports.placeOrder = async (req, res) => {
     // === Email sending logic ===
     const userEmail = shippingAddress?.email;
 
-    if (userEmail && userEmail.includes('@')) {
+    if (userEmail && userEmail.includes("@")) {
       // Step 1: Fetch product names
-      const productIds = orderItems.map(item => item.id);
+      const productIds = orderItems.map((item) => item.id);
       const [productRows] = await db.query(
-        `SELECT id, name FROM products WHERE id IN (${productIds.map(() => '?').join(',')})`,
+        `SELECT id, name FROM products WHERE id IN (${productIds
+          .map(() => "?")
+          .join(",")})`,
         productIds
       );
 
       const productMap = {};
-      productRows.forEach(p => {
+      productRows.forEach((p) => {
         productMap[p.id] = p.name;
       });
 
       // Step 2: Prepare items
-      const itemList = orderItems.map(item => {
-        const name = productMap[item.id] || 'Unnamed Product';
-        return `<li>${name} — ${item.quantity} x $${item.price}</li>`;
-      }).join('');
+      const itemList = orderItems
+        .map((item) => {
+          const name = productMap[item.id] || "Unnamed Product";
+          return `<li>${name} — ${item.quantity} x $${item.price}</li>`;
+        })
+        .join("");
 
       // Step 3: Send mail
       const mailOptions = {
@@ -96,7 +103,7 @@ exports.placeOrder = async (req, res) => {
             <p style="font-size: 0.9em;">You will receive further updates when your order ships.</p>
             <p>— Empire Design Team</p>
           </div>
-        `
+        `,
       };
 
       await transporter.sendMail(mailOptions);
@@ -141,7 +148,7 @@ exports.trackOrder = async (req, res) => {
       status: rows[0].status,
     };
 
-    const products = rows.map(row => ({
+    const products = rows.map((row) => ({
       product_name: row.product_name,
       product_image: row.product_image,
       product_price: row.product_price,
@@ -160,73 +167,66 @@ exports.trackOrder = async (req, res) => {
 // ==================== ADMIN SIDE ====================
 
 // Get all orders
-exports.getAllOrders = (req, res) => {
-  const query = 'SELECT * FROM orders';
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('DB error:', err);
-      return res.status(500).json({ message: 'Server error' });
-    }
+exports.getAllOrders = async (req, res) => {
+  try {
+    const query = "SELECT * FROM orders";
+    const [results] = await db.query(query);
     res.json(results);
-  });
+  } catch (err) {
+    console.error("DB error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
 };
 
 // Get order by ID with items
-exports.getOrderById = (req, res) => {
-  const orderId = req.params.id;
+exports.getOrderById = async (req, res) => {
+  try {
+    const orderId = req.params.id;
 
-  const orderQuery = 'SELECT * FROM orders WHERE order_id = ?';
-  const itemsQuery = `
-    SELECT oi.quantity, oi.price, p.name
-    FROM order_items oi
-    JOIN products p ON oi.product_id = p.id
-    WHERE oi.order_id = ?
-  `;
+    const orderQuery = "SELECT * FROM orders WHERE order_id = ?";
+    const itemsQuery = `
+      SELECT oi.quantity, oi.price, p.name
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      WHERE oi.order_id = ?
+    `;
 
-  db.query(orderQuery, [orderId], (orderErr, orderResults) => {
-    if (orderErr) {
-      console.error('Order query error:', orderErr);
-      return res.status(500).json({ error: 'Database error fetching order' });
-    }
+    const [orderResults] = await db.query(orderQuery, [orderId]);
 
     if (orderResults.length === 0) {
-      return res.status(404).json({ error: 'Order not found' });
+      return res.status(404).json({ error: "Order not found" });
     }
 
     const order = orderResults[0];
 
-    if (typeof order.shipping_address !== 'string') {
+    if (typeof order.shipping_address !== "string") {
       order.shipping_address = JSON.stringify(order.shipping_address || {});
     }
 
-    db.query(itemsQuery, [orderId], (itemsErr, itemsResults) => {
-      if (itemsErr) {
-        console.error('Items query error:', itemsErr);
-        return res.status(500).json({ error: 'Database error fetching order items' });
-      }
-
-      order.items = itemsResults || [];
-      res.json(order);
-    });
-  });
+    const [itemsResults] = await db.query(itemsQuery, [orderId]);
+    order.items = itemsResults || [];
+    res.json(order);
+  } catch (err) {
+    console.error("Database error:", err);
+    return res.status(500).json({ error: "Database error" });
+  }
 };
 
 // Update order status
-exports.updateOrderStatus = (req, res) => {
-  const orderId = req.params.id;
-  const { status } = req.body;
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
 
-  if (!status) {
-    return res.status(400).json({ message: "Status is required" });
-  }
-
-  const updateQuery = 'UPDATE orders SET status = ? WHERE order_id = ?';
-  db.query(updateQuery, [status, orderId], (err) => {
-    if (err) {
-      console.error('Error updating order:', err);
-      return res.status(500).json({ error: 'Failed to update order status' });
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
     }
 
-    res.json({ message: 'Order status updated successfully' });
-  });
+    const updateQuery = "UPDATE orders SET status = ? WHERE order_id = ?";
+    await db.query(updateQuery, [status, orderId]);
+    res.json({ message: "Order status updated successfully" });
+  } catch (err) {
+    console.error("Error updating order:", err);
+    return res.status(500).json({ error: "Failed to update order status" });
+  }
 };
