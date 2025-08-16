@@ -30,7 +30,7 @@ exports.placeOrder = async (req, res) => {
     const initialStatus = "Placed";
 
     // Insert into orders table
-    const [orderResult] = await db.promise().query(
+    const [orderResult] = await db.query(
       "INSERT INTO orders (shipping_address, payment_method, total_price, user_id, status) VALUES (?, ?, ?, ?, ?)",
       [addressText, paymentMethod, totalPrice, user_id, initialStatus]
     );
@@ -38,14 +38,14 @@ exports.placeOrder = async (req, res) => {
     const orderId = orderResult.insertId;
 
     // Set tracking number
-    await db.promise().query(
+    await db.query(
       "UPDATE orders SET tracking_number = ? WHERE order_id = ?",
       [orderId, orderId]
     );
 
     // Insert order items
     for (const item of orderItems) {
-      await db.promise().query(
+      await db.query(
         "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
         [orderId, item.id, item.quantity, item.price]
       );
@@ -57,7 +57,7 @@ exports.placeOrder = async (req, res) => {
     if (userEmail && userEmail.includes('@')) {
       // Step 1: Fetch product names
       const productIds = orderItems.map(item => item.id);
-      const [productRows] = await db.promise().query(
+      const [productRows] = await db.query(
         `SELECT id, name FROM products WHERE id IN (${productIds.map(() => '?').join(',')})`,
         productIds
       );
@@ -114,7 +114,7 @@ exports.trackOrder = async (req, res) => {
   const { orderId } = req.params;
 
   try {
-    const [rows] = await db.promise().query(
+    const [rows] = await db.query(
       `SELECT 
         o.order_id, o.shipping_address, o.payment_method, o.total_price,
         o.status, o.created_at, oi.quantity,

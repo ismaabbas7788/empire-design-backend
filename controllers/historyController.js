@@ -5,7 +5,7 @@ exports.getUserOrderHistory = async (req, res) => {
   const userId = req.params.userId;
 
   try {
-    const [rows] = await db.promise().query(
+    const [rows] = await db.query(
       `SELECT 
         o.order_id, o.shipping_address, o.payment_method, o.total_price,
         o.status, o.created_at, oi.quantity,

@@ -12,7 +12,7 @@ const getAllProducts = async (req, res) => {
       params.push(subcategoryId);
     }
 
-    const [results] = await db.promise().query(query, params);
+    const [results] = await db.query(query, params);
     res.status(200).json(results);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -23,7 +23,7 @@ const getAllProducts = async (req, res) => {
 // Dynamically add a product
 const addProduct = async (req, res) => {
   try {
-    const [columns] = await db.promise().query(`SHOW COLUMNS FROM products`);
+    const [columns] = await db.query(`SHOW COLUMNS FROM products`);
     const columnNames = columns
       .filter(col => col.Extra !== 'auto_increment')
       .map(col => col.Field);
@@ -44,7 +44,7 @@ const addProduct = async (req, res) => {
     const placeholders = fieldsToInsert.map(() => '?').join(', ');
     const sql = `INSERT INTO products (${fieldsToInsert.join(', ')}) VALUES (${placeholders})`;
 
-    const [result] = await db.promise().query(sql, valuesToInsert);
+    const [result] = await db.query(sql, valuesToInsert);
     res.status(201).json({ message: 'Product added successfully', id: result.insertId });
   } catch (error) {
     console.error('Error adding product:', error);
@@ -55,7 +55,7 @@ const addProduct = async (req, res) => {
 // Get all product table columns (for dynamic form)
 const getProductColumns = async (req, res) => {
   try {
-    const [columns] = await db.promise().query(`SHOW COLUMNS FROM products`);
+    const [columns] = await db.query(`SHOW COLUMNS FROM products`);
     res.status(200).json(columns);
   } catch (error) {
     console.error('Error fetching product columns:', error);
@@ -66,7 +66,7 @@ const getProductColumns = async (req, res) => {
 const getProductById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [results] = await db.promise().query(
+    const [results] = await db.query(
       'SELECT * FROM products WHERE id = ?',
       [id]
     );
@@ -88,7 +88,7 @@ const updateProduct = async (req, res) => {
     const productId = req.params.id;
     const input = req.body;
 
-    const [columns] = await db.promise().query(`SHOW COLUMNS FROM products`);
+    const [columns] = await db.query(`SHOW COLUMNS FROM products`);
     const columnNames = columns
       .filter(col => col.Field !== 'id' && col.Extra !== 'auto_increment')
       .map(col => col.Field);
@@ -103,7 +103,7 @@ const updateProduct = async (req, res) => {
     const updateQuery = `UPDATE products SET ${fieldsToUpdate.map(field => `${field} = ?`).join(', ')} WHERE id = ?`;
     values.push(productId);
 
-    const [result] = await db.promise().query(updateQuery, values);
+    const [result] = await db.query(updateQuery, values);
     res.status(200).json({ message: 'Product updated successfully' });
   } catch (error) {
     console.error('Error updating product:', error);
@@ -115,7 +115,7 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    const [result] = await db.promise().query('DELETE FROM products WHERE id = ?', [productId]);
+    const [result] = await db.query('DELETE FROM products WHERE id = ?', [productId]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -154,7 +154,7 @@ const getTopSellers = (req, res) => {
 // GET most recent products
 const getRecentProducts = async (req, res) => {
   try {
-    const [rows] = await db.promise().query(
+    const [rows] = await db.query(
       'SELECT * FROM products ORDER BY created_at DESC LIMIT 8'
     );
     res.json(rows);
