@@ -50,4 +50,8 @@ app.use('/api/contact', contactRoutes);
 
 // ❌ Don't use app.listen()
 // ✅ Instead export the app (Vercel will handle it)
-module.exports = app;
+// module.exports = app;
+
+app.listen(5000, () => {
+  console.log(`Server running at http://localhost:${5000}`);
+});
