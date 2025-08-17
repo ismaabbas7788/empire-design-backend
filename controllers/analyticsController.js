@@ -93,13 +93,14 @@ exports.getCategorySales = async (req, res) => {
   try {
     const query = `
       SELECT 
-      c.id AS categoryId,       -- 🔹 Add this
-      c.name AS category,
-      SUM(oi.quantity) AS totalSales
-  FROM order_items oi
-  JOIN products p ON oi.product_id = p.id
-  JOIN categories c ON p.category_id = c.id
-`;
+        c.id AS categoryId,
+        c.name AS category,
+        SUM(oi.quantity) AS totalSales
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      JOIN categories c ON p.category_id = c.id
+      GROUP BY c.id, c.name
+    `;
     const [results] = await db.query(query);
     res.json({ data: results });
   } catch (err) {
@@ -107,6 +108,7 @@ exports.getCategorySales = async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch category sales" });
   }
 };
+
 
 // =========================
 // User Report PDF
