@@ -14,7 +14,8 @@ const profileRoutes = require('../routes/profileRoutes');
 const reviewRoutes = require('../routes/reviewRoutes');
 const historyRoutes = require('../routes/historyRoutes');
 const searchRoutes = require('../routes/searchRoutes');
-const registerRoutes = require('../routes/userRoutes');
+const userRoutes = require('../routes/userRoutes');
+
 const analyticsRoutes = require('../routes/analyticsRoutes');
 const contactRoutes = require("../routes/contactRoutes");
 const subcategoriesRoutes = require('../routes/subcategoriesRoutes');
@@ -43,10 +44,11 @@ app.use('/api/profile', profileRoutes);
 app.use('/api', reviewRoutes);
 app.use('/api', historyRoutes);
 app.use('/api', searchRoutes);
-app.use('/api/register', registerRoutes);
+//app.use('/api/register', registerRoutes);
 app.use("/api/subcategories", subcategoriesRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/contact', contactRoutes);
+app.use("/api/users", userRoutes);
 
 // ❌ Don't use app.listen()
 // ✅ Instead export the app (Vercel will handle it)
