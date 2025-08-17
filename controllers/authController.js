@@ -1,8 +1,16 @@
 const db = require("../config/db");
+const nodemailer = require("nodemailer");
+
+// Setup Nodemailer transporter with Gmail
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "ismaabbas7788@gmail.com", // 🔴 replace with your Gmail
+    pass: "nnll vuar argl tnxj",   // 🔴 replace with your Gmail app password
+  },
+});
 
 // LOGIN
-// LOGIN
-
 exports.login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
@@ -13,7 +21,6 @@ exports.login = async (req, res) => {
         .json({ message: "Email, password, and role are required" });
     }
 
-    // Query using async/await
     const [results] = await db.query(
       "SELECT * FROM register WHERE email = ? AND password = ? AND role = ?",
       [email, password, role]
@@ -80,30 +87,57 @@ exports.forgotPassword = async (req, res) => {
       return res.status(404).json({ message: "Email not found." });
 
     const confirmationCode = Math.floor(10000 + Math.random() * 90000);
+
     await db.query("UPDATE register SET reset_password = ? WHERE email = ?", [
       confirmationCode,
       email,
     ]);
-    return res.status(200).json({ message: "Code saved.", confirmationCode }); // In real apps, don't send code
+
+    // Send code via Gmail
+    await transporter.sendMail({
+      from: "yourgmail@gmail.com",
+      to: email,
+      subject: "Your Password Reset Code",
+      html: `<h3>Password Reset Request</h3>
+             <p>Your confirmation code is: <b>${confirmationCode}</b></p>
+             <p>If you didn’t request this, please ignore this email.</p>`,
+    });
+
+    return res.status(200).json({ message: "Confirmation code sent to your email." });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: "Database error occurred." });
   }
 };
 
+// RESEND CODE
 exports.resendCode = async (req, res) => {
   try {
     const { email } = req.body;
     const confirmationCode = Math.floor(10000 + Math.random() * 90000);
+
     await db.query("UPDATE register SET reset_password = ? WHERE email = ?", [
       confirmationCode,
       email,
     ]);
-    return res.status(200).json({ message: "New code sent." });
+
+    // Send new code
+    await transporter.sendMail({
+      from: "yourgmail@gmail.com",
+      to: email,
+      subject: "Your New Password Reset Code",
+      html: `<h3>Resend Confirmation Code</h3>
+             <p>Your new confirmation code is: <b>${confirmationCode}</b></p>`,
+    });
+
+    return res.status(200).json({ message: "New confirmation code sent to your email." });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: "Failed to resend code." });
   }
 };
 
+// VERIFY CODE
 exports.verifyCode = async (req, res) => {
   try {
     const { email, confirmationCode } = req.body;
@@ -124,6 +158,7 @@ exports.verifyCode = async (req, res) => {
   }
 };
 
+// RESET PASSWORD
 exports.resetPassword = async (req, res) => {
   try {
     const { email, newPassword } = req.body;
