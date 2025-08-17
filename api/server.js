@@ -44,7 +44,7 @@ app.use('/api', reviewRoutes);
 app.use('/api', historyRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/register', registerRoutes);
-app.use('/api/subcategories', subcategoriesRoutes);
+app.use("/api/subcategories", subcategoriesRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/contact', contactRoutes);
 
