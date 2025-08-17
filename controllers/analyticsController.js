@@ -292,6 +292,8 @@ exports.getOrdersReport = async (req, res) => {
     orderList.forEach((order, idx) => {
       checkPageSpace(110);
 
+      const totalPrice = Number(order.total_price) || 0;
+
       doc
         .fontSize(14)
         .fillColor("#003366")
@@ -310,7 +312,7 @@ exports.getOrdersReport = async (req, res) => {
         .font("Helvetica-Bold")
         .text("Total Price: ", { continued: true })
         .font("Helvetica")
-        .text(`$${order.total_price.toFixed(2)}`, { continued: true });
+        .text(`$${totalPrice.toFixed(2)}`, { continued: true });
 
       doc
         .font("Helvetica-Bold")
@@ -322,7 +324,11 @@ exports.getOrdersReport = async (req, res) => {
         .font("Helvetica-Bold")
         .text("Order Date: ", { continued: true })
         .font("Helvetica")
-        .text(new Date(order.created_at).toLocaleDateString());
+        .text(
+          order.created_at
+            ? new Date(order.created_at).toLocaleDateString()
+            : "-"
+        );
 
       doc.moveDown(0.5);
 
@@ -361,9 +367,14 @@ exports.getOrdersReport = async (req, res) => {
     doc.end();
   } catch (error) {
     console.error("Error generating orders report:", error);
-    res.status(500).json({ error: "Failed to generate orders report" });
+
+    // make sure to not write after response is closed
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Failed to generate orders report" });
+    }
   }
 };
+
 // =========================
 // Paginated Sales Data with Optional Date Filter
 // =========================
